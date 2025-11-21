@@ -31,15 +31,6 @@ jobs:
       - name: Run TypeScript build
         run: pnpm runtsc
 
-      - name: Verify TypeScript build succeeded
-        run: |
-          echo "✅ TypeScript build succeeded"
-          echo ""
-          echo "Generated declaration files:"
-          find packages -path "*/dist/tsc/*.d.ts" -type f | sort
-          echo ""
-          echo "This confirms TypeScript project references work correctly."
-
   rslib-build:
     name: rslib Build (Expected to Fail)
     runs-on: ubuntu-latest
@@ -62,25 +53,7 @@ jobs:
 
       - name: Run rslib build (expected to fail)
         id: rslib_build
-        continue-on-error: true
         run: pnpm repro
-
-      - name: Check rslib build output
-        run: |
-          if [ "${{ steps.rslib_build.outcome }}" = "failure" ]; then
-            echo "✅ Expected result: rslib build failed"
-            echo ""
-            echo "This confirms the issue:"
-            echo "- rslib cannot resolve workspace packages via TypeScript project references"
-            echo "- The same configuration works with 'tsc --build' (see typescript-build job)"
-            exit 0
-          else
-            echo "❌ Unexpected: rslib build succeeded"
-            echo ""
-            echo "This suggests the issue may have been fixed!"
-            echo "If rslib now supports project references, this reproduction is no longer needed."
-            exit 1
-          fi
 
   summary:
     name: Summary

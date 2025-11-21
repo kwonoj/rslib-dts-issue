@@ -10,3 +10,4 @@ a.js
 swc-plugin-coverage-*.tgz
 /tmp
 trace-*.json
+/**/dist/**
