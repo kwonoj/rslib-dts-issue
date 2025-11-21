@@ -1,0 +1,22 @@
+{
+  "name": "pkg-a",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rslib build",
+    "tsc:build": "tsc --build"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/pkg/dts/src/index.d.ts",
+      "import": "./dist/pkg/esm/index.js",
+      "default": "./dist/pkg/esm/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/pkg/dts/src/schemas/index.d.ts",
+      "import": "./dist/pkg/esm/schemas.js",
+      "default": "./dist/pkg/esm/schemas.js"
+    }
+  }
+}

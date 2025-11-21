@@ -1,0 +1,125 @@
+name: Reproduce rslib TypeScript Issue
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  typescript-build:
+    name: TypeScript Build (tsc --build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run TypeScript build
+        run: pnpm runtsc
+
+      - name: Verify TypeScript build succeeded
+        run: |
+          echo "✅ TypeScript build succeeded"
+          echo ""
+          echo "Generated declaration files:"
+          find packages -path "*/dist/tsc/*.d.ts" -type f | sort
+          echo ""
+          echo "This confirms TypeScript project references work correctly."
+
+  rslib-build:
+    name: rslib Build (Expected to Fail)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run rslib build (expected to fail)
+        id: rslib_build
+        continue-on-error: true
+        run: pnpm repro
+
+      - name: Check rslib build output
+        run: |
+          if [ "${{ steps.rslib_build.outcome }}" = "failure" ]; then
+            echo "✅ Expected result: rslib build failed"
+            echo ""
+            echo "This confirms the issue:"
+            echo "- rslib cannot resolve workspace packages via TypeScript project references"
+            echo "- The same configuration works with 'tsc --build' (see typescript-build job)"
+            exit 0
+          else
+            echo "❌ Unexpected: rslib build succeeded"
+            echo ""
+            echo "This suggests the issue may have been fixed!"
+            echo "If rslib now supports project references, this reproduction is no longer needed."
+            exit 1
+          fi
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [typescript-build, rslib-build]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          echo "# Reproduction Test Results"
+          echo ""
+          echo "| Job | Result | Expected | Status |"
+          echo "|-----|--------|----------|--------|"
+          echo "| TypeScript Build | ${{ needs.typescript-build.result }} | success | ${{ needs.typescript-build.result == 'success' && '✅' || '❌' }} |"
+          echo "| rslib Build | ${{ needs.rslib-build.result }} | success | ${{ needs.rslib-build.result == 'success' && '✅' || '❌' }} |"
+          echo ""
+
+          if [ "${{ needs.typescript-build.result }}" = "success" ] && [ "${{ needs.rslib-build.result }}" = "success" ]; then
+            echo "## ✅ Issue Successfully Reproduced"
+            echo ""
+            echo "**Findings:**"
+            echo "- ✅ TypeScript \`tsc --build\` works correctly with project references"
+            echo "- ❌ rslib fails to resolve workspace packages via project references"
+            echo ""
+            echo "**Conclusion:** rslib does not properly handle TypeScript project references"
+            echo "for resolving workspace dependencies, even though the configuration is valid."
+          else
+            echo "## ⚠️ Unexpected Results"
+            echo ""
+            echo "One or both jobs did not produce the expected results."
+            echo "Please check the individual job logs for details."
+
+            if [ "${{ needs.typescript-build.result }}" != "success" ]; then
+              echo ""
+              echo "⚠️ TypeScript build failed - this suggests an issue with the test setup"
+            fi
+
+            if [ "${{ needs.rslib-build.result }}" != "success" ]; then
+              echo ""
+              echo "✨ rslib build succeeded - the issue may have been fixed!"
+            fi
+          fi

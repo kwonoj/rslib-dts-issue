@@ -1,0 +1,10 @@
+{
+  // Used by: rslib build (via source.tsconfigPath in rslib.config.ts)
+  // Output: dist/rslib-tsc/
+  // Extends the main tsconfig.json but uses different output directories
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declarationDir": "./dist/rslib-tsc",
+    "tsBuildInfoFile": "./dist/rslib-tsc/tsconfig.tsbuildinfo"
+  }
+}

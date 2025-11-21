@@ -1,0 +1,12 @@
+{
+  // Used by: tsc --build (via pnpm runtsc)
+  // Output: dist/tsc/
+  // This config includes 'paths' and works correctly
+  "extends": "../tsconfig/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/tsc",
+    "tsBuildInfoFile": "./dist/tsc/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*"]
+}

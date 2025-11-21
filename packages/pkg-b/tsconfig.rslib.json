@@ -1,0 +1,17 @@
+{
+  // Used by: rslib build (via source.tsconfigPath in rslib.config.ts)
+  // Output: dist/rslib-tsc/
+  // Extends the main tsconfig.json but overrides paths and uses different output directories
+  // Removing 'paths' to demonstrate rslib cannot resolve workspace packages via project references alone
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declarationDir": "./dist/rslib-tsc",
+    "tsBuildInfoFile": "./dist/rslib-tsc/tsconfig.tsbuildinfo",
+    "paths": {}
+  },
+  "references": [
+    {
+      "path": "../pkg-a/tsconfig.rslib.json"
+    }
+  ]
+}

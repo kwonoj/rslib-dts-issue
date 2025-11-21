@@ -1,0 +1,22 @@
+{
+  // Used by: tsc --build (via pnpm runtsc)
+  // Output: dist/tsc/
+  // This config includes 'paths' to resolve workspace packages and works correctly
+  "extends": "../tsconfig/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/tsc",
+    "tsBuildInfoFile": "./dist/tsc/tsconfig.tsbuildinfo",
+    "baseUrl": "..",
+    "paths": {
+      "pkg-a": ["pkg-a/src/index.ts"],
+      "pkg-a/*": ["pkg-a/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "references": [
+    {
+      "path": "../pkg-a/tsconfig.json"
+    }
+  ]
+}
